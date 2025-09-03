@@ -156,9 +156,8 @@ export default function CampaignFilter() {
         <>
           <div className="mb-4 rounded-2xl border bg-white p-4 shadow-sm">
             <p className="text-sm text-gray-700">
-              Unggah fotomu, kami terapkan filter duotone otomatis. Pilih{" "}
-              <em>Mapping</em>, <em>Palet</em>, dan <em>Preset</em>. Pengaturan
-              lanjutan bisa dibuka kapan saja.
+              Unggah fotomu, biarkan filter duotone mengubahnya. Sesuaikan
+              warna, pilih gaya palet, atau gunakan preset instan.
             </p>
           </div>
 
@@ -166,8 +165,8 @@ export default function CampaignFilter() {
 
           <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-gray-600">
             <span className="inline-flex items-center gap-2">
-              🔒 Website ini tidak menyimpan data pengguna, semua proses di
-              perangkatmu
+              🔒 Privasi aman, Website ini tidak menyimpan data pengguna, semua
+              efek diproses langsung di perangkatmu.
             </span>
           </div>
         </>
@@ -265,7 +264,7 @@ export default function CampaignFilter() {
           />
 
           {/* strip CTA share */}
-          <div className="flex flex-col gap-3 rounded-2xl border bg-white p-4 shadow-sm md:flex-row md:items-center md:justify-between">
+          <div className="mb-20 md:mb-0 flex flex-col gap-3 rounded-2xl border bg-white p-4 shadow-sm md:flex-row md:items-center md:justify-between">
             <p className="text-sm text-gray-700">
               Suka hasilnya? Bagikan dengan tagar{" "}
               <span className="font-medium text-emerald-700">#HeroGreen</span> &{" "}
@@ -284,7 +283,7 @@ export default function CampaignFilter() {
                     }
                   } catch {}
                 }}
-                className="text-white cursor-pointer rounded-xl border px-4 py-2 text-sm bg-emerald-800 hover:bg-emerald-700 "
+                className="text-white cursor-pointer rounded-xl border px-4 py-2 text-sm bg-emerald-800 hover:bg-emerald-700"
               >
                 Bagikan
               </button>

@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://warna-perlawanan.vercel.app/sitemap.xml
