@@ -58,7 +58,7 @@ const processImageOnCanvas = (
   const ctx = canvas.getContext("2d", { willReadFrequently: true });
   if (!ctx) throw new Error("No canvas context");
 
-  let { width, height } = calculateDimensions(
+  const { width, height } = calculateDimensions(
     img.naturalWidth,
     img.naturalHeight
   );
