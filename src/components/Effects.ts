@@ -80,83 +80,83 @@ export function applySoftGlow(
 }
 
 /** Grunge overlay: blotches + speckles + scratches, blended multiply + overlay */
-export function applyGrungeOverlay(
-  canvas: HTMLCanvasElement,
-  amount01: number,
-  scale: number
-) {
-  if (amount01 <= 0) return;
-  const amount = Math.max(0, Math.min(1, amount01));
-  const w = canvas.width,
-    h = canvas.height;
-  const off = document.createElement("canvas");
-  off.width = w;
-  off.height = h;
-  const ctx = off.getContext("2d");
-  const dst = canvas.getContext("2d");
-  if (!ctx || !dst) return;
+// export function applyGrungeOverlay(
+//   canvas: HTMLCanvasElement,
+//   amount01: number,
+//   scale: number
+// ) {
+//   if (amount01 <= 0) return;
+//   const amount = Math.max(0, Math.min(1, amount01));
+//   const w = canvas.width,
+//     h = canvas.height;
+//   const off = document.createElement("canvas");
+//   off.width = w;
+//   off.height = h;
+//   const ctx = off.getContext("2d");
+//   const dst = canvas.getContext("2d");
+//   if (!ctx || !dst) return;
 
-  ctx.clearRect(0, 0, w, h);
+//   ctx.clearRect(0, 0, w, h);
 
-  // layer 1: blotches
-  const blotchCount = Math.round((w * h) / (90000 / Math.max(0.1, amount)));
-  for (let i = 0; i < blotchCount; i++) {
-    const bx = Math.random() * w,
-      by = Math.random() * h;
-    const r =
-      (Math.random() * 0.5 + 0.5) *
-      (Math.min(w, h) / (18 + (100 - scale) * 0.12));
-    const g = ctx.createRadialGradient(bx, by, 0, bx, by, r);
-    const shade = Math.floor(180 + Math.random() * 40);
-    g.addColorStop(0, `rgba(${shade},${shade},${shade},${0.12 * amount})`);
-    g.addColorStop(1, "rgba(0,0,0,0)");
-    ctx.fillStyle = g;
-    ctx.beginPath();
-    ctx.arc(bx, by, r, 0, Math.PI * 2);
-    ctx.fill();
-  }
+//   // layer 1: blotches
+//   const blotchCount = Math.round((w * h) / (90000 / Math.max(0.1, amount)));
+//   for (let i = 0; i < blotchCount; i++) {
+//     const bx = Math.random() * w,
+//       by = Math.random() * h;
+//     const r =
+//       (Math.random() * 0.5 + 0.5) *
+//       (Math.min(w, h) / (18 + (100 - scale) * 0.12));
+//     const g = ctx.createRadialGradient(bx, by, 0, bx, by, r);
+//     const shade = Math.floor(180 + Math.random() * 40);
+//     g.addColorStop(0, `rgba(${shade},${shade},${shade},${0.12 * amount})`);
+//     g.addColorStop(1, "rgba(0,0,0,0)");
+//     ctx.fillStyle = g;
+//     ctx.beginPath();
+//     ctx.arc(bx, by, r, 0, Math.PI * 2);
+//     ctx.fill();
+//   }
 
-  // layer 2: speckles
-  const speckles = Math.round((w * h) / (12000 / Math.max(0.1, amount)));
-  ctx.fillStyle = `rgba(30,30,30,${0.12 * amount})`;
-  for (let i = 0; i < speckles; i++) {
-    const x = (Math.random() * w) | 0;
-    const y = (Math.random() * h) | 0;
-    const s = 1 + Math.random() * (scale / 50);
-    ctx.fillRect(x, y, s, s);
-  }
+//   // layer 2: speckles
+//   const speckles = Math.round((w * h) / (12000 / Math.max(0.1, amount)));
+//   ctx.fillStyle = `rgba(30,30,30,${0.12 * amount})`;
+//   for (let i = 0; i < speckles; i++) {
+//     const x = (Math.random() * w) | 0;
+//     const y = (Math.random() * h) | 0;
+//     const s = 1 + Math.random() * (scale / 50);
+//     ctx.fillRect(x, y, s, s);
+//   }
 
-  // layer 3: scratches
-  const scratchCount = Math.round(30 * amount);
-  ctx.strokeStyle = `rgba(30,30,30,${0.25 * amount})`;
-  ctx.lineWidth = Math.max(0.5, scale / 200);
-  for (let i = 0; i < scratchCount; i++) {
-    const x1 = Math.random() * w,
-      y1 = Math.random() * h;
-    const len = (Math.random() * 0.2 + 0.1) * Math.max(w, h);
-    const ang = Math.random() * Math.PI * 2;
-    const x2 = x1 + Math.cos(ang) * len,
-      y2 = y1 + Math.sin(ang) * len;
-    ctx.beginPath();
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y2);
-    ctx.stroke();
-  }
+//   // layer 3: scratches
+//   const scratchCount = Math.round(30 * amount);
+//   ctx.strokeStyle = `rgba(30,30,30,${0.25 * amount})`;
+//   ctx.lineWidth = Math.max(0.5, scale / 200);
+//   for (let i = 0; i < scratchCount; i++) {
+//     const x1 = Math.random() * w,
+//       y1 = Math.random() * h;
+//     const len = (Math.random() * 0.2 + 0.1) * Math.max(w, h);
+//     const ang = Math.random() * Math.PI * 2;
+//     const x2 = x1 + Math.cos(ang) * len,
+//       y2 = y1 + Math.sin(ang) * len;
+//     ctx.beginPath();
+//     ctx.moveTo(x1, y1);
+//     ctx.lineTo(x2, y2);
+//     ctx.stroke();
+//   }
 
-  // slight blur & blend
-  ctx.filter = "blur(0.6px)";
-  ctx.drawImage(off, 0, 0);
-  ctx.filter = "none";
+//   // slight blur & blend
+//   ctx.filter = "blur(0.6px)";
+//   ctx.drawImage(off, 0, 0);
+//   ctx.filter = "none";
 
-  dst.save();
-  dst.globalAlpha = Math.min(0.6, 0.2 + amount * 0.4);
-  dst.globalCompositeOperation = "multiply";
-  dst.drawImage(off, 0, 0);
-  dst.globalCompositeOperation = "overlay";
-  dst.globalAlpha = Math.min(0.35, 0.12 + amount * 0.2);
-  dst.drawImage(off, 0, 0);
-  dst.restore();
-}
+//   dst.save();
+//   dst.globalAlpha = Math.min(0.6, 0.2 + amount * 0.4);
+//   dst.globalCompositeOperation = "multiply";
+//   dst.drawImage(off, 0, 0);
+//   dst.globalCompositeOperation = "overlay";
+//   dst.globalAlpha = Math.min(0.35, 0.12 + amount * 0.2);
+//   dst.drawImage(off, 0, 0);
+//   dst.restore();
+// }
 
 /** Paper folds / creases: soft highlight + shadow band(s) */
 export function applyPaperFolds(
@@ -219,4 +219,131 @@ export function applyPaperFolds(
 
 function clamp255(v: number) {
   return v < 0 ? 0 : v > 255 ? 255 : v;
+}
+
+
+/** Halftone dots overlay (canvas-based)
+ *  cellSize: ukuran grid (px). 4–10 bagus untuk web.
+ *  opacity01: 0..1 intensitas titik (akan diblend multiply).
+ *  invert: true = titik mengikuti area terang, false = area gelap.
+ */
+export function applyHalftone(
+  canvas: HTMLCanvasElement,
+  cellSize: number = 6,
+  opacity01: number = 0.35,
+  invert: boolean = false
+) {
+  if (cellSize < 2) cellSize = 2;
+  const w = canvas.width, h = canvas.height;
+  const src = canvas.getContext("2d", { willReadFrequently: true });
+  const dst = canvas.getContext("2d");
+  if (!src || !dst) return;
+
+  const img = src.getImageData(0, 0, w, h);
+  const data = img.data;
+
+  // offscreen untuk menggambar titik transparan
+  const off = document.createElement("canvas");
+  off.width = w; off.height = h;
+  const o = off.getContext("2d");
+  if (!o) return;
+  o.clearRect(0, 0, w, h);
+  o.fillStyle = `rgba(0,0,0,${Math.max(0, Math.min(1, opacity01))})`;
+  o.imageSmoothingEnabled = true;
+
+  const half = cellSize / 2;
+  // sampling per sel: ambil luminance di pusat sel
+  for (let y = half; y < h; y += cellSize) {
+    for (let x = half; x < w; x += cellSize) {
+      const ix = Math.min(w - 1, Math.max(0, x | 0));
+      const iy = Math.min(h - 1, Math.max(0, y | 0));
+      const i = (iy * w + ix) * 4;
+      const r = data[i], g = data[i + 1], b = data[i + 2];
+      const lum = 0.2126 * r + 0.7152 * g + 0.0722 * b; // 0..255
+
+      // radius proporsional: area gelap → dot besar (default)
+      const t = invert ? (lum / 255) : (1 - lum / 255);
+      const radius = Math.max(0, t) * half;
+
+      if (radius > 0.2) {
+        o.beginPath();
+        o.arc(x, y, radius, 0, Math.PI * 2);
+        o.fill();
+      }
+    }
+  }
+
+  // blend multiply supaya titik menggelapkan konten
+  dst.save();
+  dst.globalCompositeOperation = "multiply";
+  dst.drawImage(off, 0, 0);
+  dst.restore();
+}
+
+
+// ---- Grunge overlay (pakai tekstur PNG) ----
+export const GRUNGE_TEXTURES: string[] = [
+  "/textures/1.png",
+  "/textures/2.png",
+  "/textures/3.png",
+  "/textures/4.png",
+  "/textures/5.png",
+  "/textures/6.png",
+  "/textures/7.png",
+  "/textures/8.png",
+  "/textures/9.png",
+  "/textures/10.png",
+  "/textures/11.png",
+  "/textures/12.png", 
+  "/textures/13.png",
+  "/textures/14.png",
+  "/textures/15.png",
+  "/textures/16.png",
+  "/textures/17.png",
+  "/textures/18.png",
+  "/textures/19.png",
+  "/textures/20.png",
+  "/textures/21.png",
+  "/textures/22.png",
+  "/textures/23.png",
+  "/textures/24.png",
+
+];
+
+const _imgCache = new Map<string, HTMLImageElement>();
+function loadImage(url: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const cached = _imgCache.get(url);
+    if (cached) return resolve(cached);
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      _imgCache.set(url, img);
+      resolve(img);
+    };
+    img.onerror = reject;
+    img.src = url;
+  });
+}
+
+/** Gambar overlay grunge ke canvas.
+ * opacity01: 0..1, blendMode: "multiply" | "overlay" | "soft-light" | ...
+ */
+export async function applyGrungeOverlay(
+  canvas: HTMLCanvasElement,
+  textureUrl: string,
+  opacity01: number = 0.5,
+  blendMode: GlobalCompositeOperation = "multiply"
+) {
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+  const img = await loadImage(textureUrl);
+
+  ctx.save();
+  ctx.globalAlpha = Math.max(0, Math.min(1, opacity01));
+  ctx.globalCompositeOperation = blendMode;
+
+  // skala menutupi penuh
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+  ctx.restore();
 }

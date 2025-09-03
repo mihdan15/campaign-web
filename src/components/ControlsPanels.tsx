@@ -27,16 +27,23 @@ interface ControlsPanelProps {
   // NEW: grunge & folds
   grungeAmt?: number;
   setGrungeAmt?: Setter<number>;
-  grungeScale?: number;
-  setGrungeScale?: Setter<number>;
-  foldsEnabled?: boolean;
-  setFoldsEnabled?: Setter<boolean>;
-  foldStrength?: number;
-  setFoldStrength?: Setter<number>;
-  foldDirection?: "horizontal" | "vertical" | "diagonal";
-  setFoldDirection?: Setter<"horizontal" | "vertical" | "diagonal">;
-  foldCount?: number;
-  setFoldCount?: Setter<number>;
+
+  // Halftone
+  halftoneEnabled?: boolean;
+  setHalftoneEnabled?: (v: boolean) => void;
+  halftoneSize?: number;
+  setHalftoneSize?: (v: number) => void;
+  halftoneOpacity?: number;
+  setHalftoneOpacity?: (v: number) => void;
+  halftoneInvert?: boolean;
+  setHalftoneInvert?: (v: boolean) => void;
+
+  // Grunge overlay selector
+  grungeTextureCount?: number;
+  grungeTextureIndex?: number;
+  setGrungeTextureIndex?: (v: number) => void;
+  grungeBlendMode?: GlobalCompositeOperation;
+  setGrungeBlendMode?: (v: GlobalCompositeOperation) => void;
 
   // actions
   onDownload: () => void;
@@ -50,22 +57,23 @@ export default function ControlsPanel(p: ControlsPanelProps) {
   const [activePreset, setActivePreset] = React.useState<string | null>(null);
 
   const grungeAmt = defined(p.grungeAmt, 0);
-  const grungeScale = defined(p.grungeScale, 80);
-  const foldsEnabled = defined(p.foldsEnabled, false);
-  const foldStrength = defined(p.foldStrength, 0);
-  const foldDirection = defined(p.foldDirection, "diagonal");
-  const foldCount = defined(p.foldCount, 1);
 
   const setGrungeAmt = p.setGrungeAmt ?? (() => {});
-  const setGrungeScale = p.setGrungeScale ?? (() => {});
-  const setFoldsEnabled = p.setFoldsEnabled ?? (() => {});
-  const setFoldStrength = p.setFoldStrength ?? (() => {});
-  const setFoldDirection = p.setFoldDirection ?? (() => {});
-  const setFoldCount = p.setFoldCount ?? (() => {});
+
+  const setHalftoneEnabled = p.setHalftoneEnabled ?? (() => {});
+  const setHalftoneSize = p.setHalftoneSize ?? (() => {});
+  const setHalftoneOpacity = p.setHalftoneOpacity ?? (() => {});
+  const setHalftoneInvert = p.setHalftoneInvert ?? (() => {});
+  const setVignette = p.setVignette ?? (() => {});
+  const setGlowAmt = p.setGlowAmt ?? (() => {});
+
+  const grungeTextureCount = defined(p.grungeTextureCount, 8); // default 8 kalau tidak dikirim
+  const setGrungeTextureIndex = p.setGrungeTextureIndex ?? (() => {});
+
 
   // presets
   const applyPreset = (
-    name: "poster" | "lembut" | "dramatis" | "grungePoster"
+    name: "poster" | "lembut" | "dramatis" | "grungePoster" | "halftone"
   ) => {
     if (name === "poster") {
       p.setGrainAmt(18);
@@ -75,7 +83,11 @@ export default function ControlsPanel(p: ControlsPanelProps) {
       p.setGlowAmt(12);
       p.setGlowBlur(6);
       setGrungeAmt(0);
-      setFoldsEnabled(false);
+
+      setHalftoneEnabled(false);
+      setHalftoneSize(0); // grid 6px
+      setHalftoneOpacity(0); // 50%
+      setHalftoneInvert(true);
     } else if (name === "lembut") {
       p.setGrainAmt(8);
       p.setGrainSize(1);
@@ -84,7 +96,11 @@ export default function ControlsPanel(p: ControlsPanelProps) {
       p.setGlowAmt(28);
       p.setGlowBlur(12);
       setGrungeAmt(0);
-      setFoldsEnabled(false);
+
+      setHalftoneEnabled(false);
+      setHalftoneSize(0); // grid 6px
+      setHalftoneOpacity(0); // 50%
+      setHalftoneInvert(true);
     } else if (name === "dramatis") {
       p.setGrainAmt(26);
       p.setGrainSize(2);
@@ -93,12 +109,12 @@ export default function ControlsPanel(p: ControlsPanelProps) {
       p.setGlowAmt(18);
       p.setGlowBlur(10);
       setGrungeAmt(0.2 * 100);
-      setGrungeScale(90);
-      setFoldsEnabled(true);
-      setFoldStrength(20);
-      setFoldDirection("diagonal");
-      setFoldCount(1);
-    } else {
+
+      setHalftoneEnabled(false);
+      setHalftoneSize(0); // grid 6px
+      setHalftoneOpacity(0); // 50%
+      setHalftoneInvert(true);
+    } else if (name === "grungePoster") {
       // grunge poster
       p.setGrainAmt(20);
       p.setGrainSize(2);
@@ -106,12 +122,28 @@ export default function ControlsPanel(p: ControlsPanelProps) {
       p.setVignetteSoft(65);
       p.setGlowAmt(10);
       p.setGlowBlur(6);
-      setGrungeAmt(45);
-      setGrungeScale(100);
-      setFoldsEnabled(true);
-      setFoldStrength(28);
-      setFoldDirection("diagonal");
-      setFoldCount(1);
+
+      // aktifkan grunge overlay dgn tekstur acak
+      const count = Math.max(1, grungeTextureCount);
+      const rand = Math.floor(Math.random() * count);
+      setGrungeTextureIndex(rand);
+
+      setGrungeAmt(45); // opacity overlay (0–100)
+
+      setHalftoneEnabled(false);
+      setHalftoneSize(0); // grid 6px
+      setHalftoneOpacity(0); // 50%
+      setHalftoneInvert(true);
+    } else if (name === "halftone") {
+      p.setGrainAmt(0);
+      setVignette(0);
+      setGlowAmt(0);
+      setGrungeAmt(0);
+
+      setHalftoneEnabled(true);
+      setHalftoneSize(3); // grid 6px
+      setHalftoneOpacity(20); // 50%
+      setHalftoneInvert(false);
     }
     setActivePreset(name);
   };
@@ -234,6 +266,19 @@ export default function ControlsPanel(p: ControlsPanelProps) {
           >
             Grunge
           </button>
+
+          <button
+            className={[
+              "rounded-xl border px-3 py-2 text-xs font-medium transition cursor-pointer active:scale-[.98]",
+              activePreset === "halftone"
+                ? "bg-emerald-600 text-white hover:bg-emerald-700"
+                : "hover:bg-gray-50",
+            ].join(" ")}
+            onClick={() => applyPreset("halftone")}
+            title="Dot grid halftone klasik"
+          >
+            Halftone
+          </button>
         </div>
       </div>
 
@@ -337,7 +382,7 @@ export default function ControlsPanel(p: ControlsPanelProps) {
             max={100}
             unit="%"
             onChange={p.setGlowAmt}
-            hint="Bloom lembut; hati-hati pada area sangat terang"
+            hint="Bloom lembut, hati-hati pada area sangat terang"
           />
           <Slider
             label="Glow Blur"
@@ -359,108 +404,132 @@ export default function ControlsPanel(p: ControlsPanelProps) {
             max={100}
             unit="%"
             onChange={(v) => setGrungeAmt(v)}
-            hint="Bintik, blotch, goresan halus"
+            hint="Intensitas grunge, padukan dengan grain untuk hasil maksimal"
           />
-          <Slider
-            label="Grunge Scale"
-            value={grungeScale}
-            min={10}
-            max={200}
-            step={1}
-            unit=""
-            onChange={(v) => setGrungeScale(v)}
-            hint="Ukuran pola tekstur"
-          />
+          
 
-          {/* Lipatan kertas */}
-          <div className="pt-2">
+          {/* Pilih Tekstur Grunge (aktif = hijau) */}
+          <div className="mt-2">
+            <div className="mb-2 text-xs font-medium text-gray-600">
+              Tekstur grunge
+            </div>
+            <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 md:grid-cols-6">
+              {[0, 1, 2, 3, 4, 5, 6, 7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23].map((i) => (
+                <button
+                  key={i}
+                  onClick={() => p.setGrungeTextureIndex?.(i)}
+                  className={[
+                    "relative h-14 w-full overflow-hidden rounded-lg border cursor-pointer transition",
+                    p.grungeTextureIndex === i
+                      ? "bg-emerald-700 text-white "
+                      : "hover:bg-gray-50 ",
+                  ].join(" ")}
+                  title={`Grunge ${i + 1}`}
+                  style={{
+                    backgroundImage: `url(/textures/${i + 1}.png)`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                    
+                  }}
+                >
+                  {/* label kecil pojok */}
+                  <span
+                    className={`absolute bottom-1 right-1 rounded bg-white/80 px-1 text-[10px] ${
+                      p.grungeTextureIndex === i
+                        ? "text-emerald-700"
+                        : "text-gray-700"
+                    }`}
+                  >
+                    {i + 1}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Blend mode */}
+          <div className="mt-2">
+            <div className="mb-2 text-xs font-medium text-gray-600">
+              Blend mode
+            </div>
+            <div className="grid grid-cols-3 gap-2 text-xs">
+              {(["multiply", "overlay", "soft-light"] as const).map((m) => (
+                <button
+                  key={m}
+                  onClick={() => p.setGrungeBlendMode?.(m)}
+                  className={[
+                    "rounded-lg border px-2 py-1 cursor-pointer transition",
+                    p.grungeBlendMode === m
+                      ? "bg-emerald-600 text-white hover:bg-emerald-700"
+                      : "hover:bg-gray-50",
+                  ].join(" ")}
+                >
+                  {m}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Halftone dots */}
+          <Divider />
+          <div className="pt-1">
             <div className="mb-2 flex items-center justify-between">
               <span className="text-sm font-semibold text-gray-700">
-                Lipatan kertas
+                Halftone
               </span>
-
-              {/* Toggle aktif (hijau saat ON) */}
               <button
                 type="button"
-                onClick={() => setFoldsEnabled(!foldsEnabled)}
-                aria-pressed={foldsEnabled}
+                onClick={() =>
+                  p.setHalftoneEnabled &&
+                  p.setHalftoneEnabled(!p.halftoneEnabled)
+                }
+                aria-pressed={!!p.halftoneEnabled}
                 className={[
                   "rounded-full px-3 py-1 text-xs font-medium transition cursor-pointer",
-                  foldsEnabled
+                  p.halftoneEnabled
                     ? "bg-emerald-600 text-white hover:bg-emerald-700"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200",
                 ].join(" ")}
-                title={foldsEnabled ? "Matikan lipatan" : "Aktifkan lipatan"}
               >
-                {foldsEnabled ? "Aktif" : "Nonaktif"}
+                {p.halftoneEnabled ? "Aktif" : "Nonaktif"}
               </button>
             </div>
 
-            {/* Kekuatan lipatan */}
             <Slider
-              label="Kekuatan lipatan"
-              value={foldStrength}
+              label="Ukuran grid"
+              value={p.halftoneSize ?? 6}
+              min={3}
+              max={16}
+              step={1}
+              unit="px"
+              onChange={(v) => p.setHalftoneSize?.(v)}
+              hint="Semakin kecil, titik makin rapat."
+            />
+            <Slider
+              label="Intensitas"
+              value={p.halftoneOpacity ?? 35}
               min={0}
               max={100}
+              step={1}
               unit="%"
-              onChange={(v) => setFoldStrength(v)}
-              hint="Atur seberapa jelas highlight & shadow lipatan."
+              onChange={(v) => p.setHalftoneOpacity?.(v)}
+              hint="Atur kekuatan dot (multiply overlay)."
             />
 
-            {/* Arah lipatan */}
-            <div className="mt-3">
-              <div className="mb-2 text-xs font-medium text-gray-600">
-                Arah lipatan
-              </div>
-              <div className="grid grid-cols-3 gap-2 text-xs">
-                <button
-                  onClick={() => setFoldDirection("horizontal")}
-                  className={[
-                    "rounded-lg border px-2 py-1 transition cursor-pointer",
-                    foldDirection === "horizontal"
-                      ? "bg-emerald-600 text-white hover:bg-emerald-700"
-                      : "hover:bg-gray-50",
-                  ].join(" ")}
-                >
-                  Horizontal
-                </button>
-                <button
-                  onClick={() => setFoldDirection("vertical")}
-                  className={[
-                    "rounded-lg border px-2 py-1 transition cursor-pointer",
-                    foldDirection === "vertical"
-                      ? "bg-emerald-600 text-white hover:bg-emerald-700"
-                      : "hover:bg-gray-50",
-                  ].join(" ")}
-                >
-                  Vertikal
-                </button>
-                <button
-                  onClick={() => setFoldDirection("diagonal")}
-                  className={[
-                    "rounded-lg border px-2 py-1 transition cursor-pointer",
-                    foldDirection === "diagonal"
-                      ? "bg-emerald-600 text-white hover:bg-emerald-700"
-                      : "hover:bg-gray-50",
-                  ].join(" ")}
-                >
-                  Diagonal
-                </button>
-              </div>
-            </div>
-
-            {/* Jumlah lipatan (pakai Slider juga) */}
-            <div className="mt-3">
-              <Slider
-                label="Jumlah lipatan"
-                value={foldCount}
-                min={1}
-                max={5}
-                step={1}
-                unit=""
-                onChange={(v) => setFoldCount(v)}
-                hint="1–5 lipatan; makin banyak, makin 'poster terlipat'."
-              />
+            <div className="mt-2">
+              <button
+                type="button"
+                onClick={() => p.setHalftoneInvert?.(!p.halftoneInvert)}
+                className={[
+                  "rounded-lg border px-3 py-1.5 text-xs transition cursor-pointer",
+                  p.halftoneInvert
+                    ? "bg-emerald-600 text-white hover:bg-emerald-700"
+                    : "hover:bg-gray-50",
+                ].join(" ")}
+                title="Balik perilaku dot: dominan di area terang"
+              >
+                {p.halftoneInvert ? "Mode Terang" : "Mode Gelap"}
+              </button>
             </div>
           </div>
         </>

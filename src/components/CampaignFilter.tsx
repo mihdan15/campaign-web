@@ -7,7 +7,8 @@ import {
   applyVignette,
   applySoftGlow,
   applyGrungeOverlay,
-  applyPaperFolds,
+  applyHalftone,
+  GRUNGE_TEXTURES
 } from "./Effects";
 import ControlsPanel from "./ControlsPanels";
 import Dropzone from "./Dropzone";
@@ -27,14 +28,19 @@ export default function CampaignFilter() {
   const [glowBlur, setGlowBlur] = useState(8);
 
   // NEW: Grunge & Paper folds
-  const [grungeAmt, setGrungeAmt] = useState(30); // 0–100
-  const [grungeScale, setGrungeScale] = useState(80); // 10–200
-  const [foldsEnabled, setFoldsEnabled] = useState(false);
-  const [foldStrength, setFoldStrength] = useState(25); // 0–100
-  const [foldDirection, setFoldDirection] = useState<
-    "horizontal" | "vertical" | "diagonal"
-  >("diagonal");
-  const [foldCount, setFoldCount] = useState(1);
+  const [grungeAmt, setGrungeAmt] = useState(0); // 0–100
+  
+
+  // Grunge overlay
+  const [grungeTextureIndex, setGrungeTextureIndex] = useState(0); // 0..7
+  const [grungeBlendMode, setGrungeBlendMode] =
+    useState<GlobalCompositeOperation>("multiply");
+
+  // Halftone
+  const [halftoneEnabled, setHalftoneEnabled] = useState(false);
+  const [halftoneSize, setHalftoneSize] = useState(6); // px grid: 4–10
+  const [halftoneOpacity, setHalftoneOpacity] = useState(35); // 0–100
+  const [halftoneInvert, setHalftoneInvert] = useState(false);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [loading, setLoading] = useState(false);
@@ -53,7 +59,7 @@ export default function CampaignFilter() {
         isReversed,
         useClassicColors
       )
-        .then(({ processedCanvas }) => {
+        .then(async ({ processedCanvas }) => {
           const ctx = processedCanvas.getContext("2d", {
             willReadFrequently: true,
           });
@@ -79,15 +85,34 @@ export default function CampaignFilter() {
           }
 
           // NEW overlays (canvas-based): grunge + paper folds
+          // if (grungeAmt > 0) {
+          //   applyGrungeOverlay(processedCanvas, grungeAmt / 100, grungeScale);
+          // }
+
           if (grungeAmt > 0) {
-            applyGrungeOverlay(processedCanvas, grungeAmt / 100, grungeScale);
-          }
-          if (foldsEnabled && foldStrength > 0) {
-            applyPaperFolds(
+            const texUrl =
+              GRUNGE_TEXTURES[
+                Math.max(
+                  0,
+                  Math.min(grungeTextureIndex, GRUNGE_TEXTURES.length - 1)
+                )
+              ];
+            await applyGrungeOverlay(
               processedCanvas,
-              foldStrength / 100,
-              foldDirection,
-              Math.max(1, Math.min(6, Math.round(foldCount)))
+              texUrl,
+              grungeAmt / 100,
+              grungeBlendMode
+            );
+          }
+
+          
+
+          if (halftoneEnabled) {
+            applyHalftone(
+              processedCanvas,
+              Math.max(2, Math.round(halftoneSize)),
+              Math.max(0, Math.min(1, halftoneOpacity / 100)),
+              halftoneInvert
             );
           }
         })
@@ -105,11 +130,13 @@ export default function CampaignFilter() {
     glowAmt,
     glowBlur,
     grungeAmt,
-    grungeScale,
-    foldsEnabled,
-    foldStrength,
-    foldDirection,
-    foldCount,
+
+    halftoneEnabled,
+    halftoneSize,
+    halftoneOpacity,
+    halftoneInvert,
+    grungeTextureIndex,
+    grungeBlendMode,
   ]);
 
   function onFileSelected(f: File) {
@@ -144,7 +171,7 @@ export default function CampaignFilter() {
 
         <h1 className="mt-3 text-4xl md:text-5xl font-black tracking-tight">
           <span className="bg-gradient-to-r from-emerald-700 via-emerald-600 to-pink-500 bg-clip-text text-transparent">
-            Reset Indonesia
+            #RESETINDONESIA
           </span>
         </h1>
         <p className="mt-2 max-w-2xl text-sm md:text-base text-gray-600">
@@ -249,18 +276,21 @@ export default function CampaignFilter() {
             setGlowBlur={setGlowBlur}
             grungeAmt={grungeAmt}
             setGrungeAmt={setGrungeAmt}
-            grungeScale={grungeScale}
-            setGrungeScale={setGrungeScale}
-            foldsEnabled={foldsEnabled}
-            setFoldsEnabled={setFoldsEnabled}
-            foldStrength={foldStrength}
-            setFoldStrength={setFoldStrength}
-            foldDirection={foldDirection}
-            setFoldDirection={setFoldDirection}
-            foldCount={foldCount}
-            setFoldCount={setFoldCount}
             onDownload={download}
             onReset={() => setFile(null)}
+            halftoneEnabled={halftoneEnabled}
+            setHalftoneEnabled={setHalftoneEnabled}
+            halftoneSize={halftoneSize}
+            setHalftoneSize={setHalftoneSize}
+            halftoneOpacity={halftoneOpacity}
+            setHalftoneOpacity={setHalftoneOpacity}
+            halftoneInvert={halftoneInvert}
+            setHalftoneInvert={setHalftoneInvert}
+            grungeTextureIndex={grungeTextureIndex}
+            setGrungeTextureIndex={setGrungeTextureIndex}
+            grungeBlendMode={grungeBlendMode}
+            setGrungeBlendMode={setGrungeBlendMode}
+            grungeTextureCount={GRUNGE_TEXTURES.length}
           />
 
           {/* strip CTA share */}
