@@ -37,10 +37,12 @@ export default function CampaignFilter() {
   const [foldCount, setFoldCount] = useState(1);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!file || !canvasRef.current) return;
 
+    setLoading(true);
     // render setelah canvas commit
     requestAnimationFrame(() => {
       if (!canvasRef.current) return;
@@ -89,7 +91,8 @@ export default function CampaignFilter() {
             );
           }
         })
-        .catch(console.error);
+        .catch(console.error)
+        .finally(() => setLoading(false));
     });
   }, [
     file,
@@ -124,16 +127,7 @@ export default function CampaignFilter() {
   }
 
   return (
-    <div id="top" className="relative mx-auto max-w-5xl px-4 py-6 md:px-6">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -top-20 -left-20 h-64 w-64 rounded-full bg-pink-200 blur-3xl opacity-40 animate-float"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-emerald-200 blur-3xl opacity-40 animate-float"
-      />
-
+    <div id="top" className="relative mx-auto max-w-5xl px-4 py-6 md:px-6 ">
       {/* header */}
       <header className="mb-5">
         <div className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium text-gray-600 bg-white/70 backdrop-blur">
@@ -150,11 +144,11 @@ export default function CampaignFilter() {
 
         <h1 className="mt-3 text-4xl md:text-5xl font-black tracking-tight">
           <span className="bg-gradient-to-r from-emerald-700 via-emerald-600 to-pink-500 bg-clip-text text-transparent">
-            Warna Perlawanan
+            Reset Indonesia
           </span>
         </h1>
         <p className="mt-2 max-w-2xl text-sm md:text-base text-gray-600">
-          Hijau untuk bayangan, merah muda untuk cahaya—suaramu ada di sini.
+          Ubah fotomu jadi simbol keberanian dan harapan
         </p>
       </header>
 
@@ -195,23 +189,40 @@ export default function CampaignFilter() {
               <div className="hidden md:flex items-center gap-2">
                 <button
                   onClick={download}
-                  className="rounded-lg bg-gray-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-black"
+                  className="rounded-lg bg-emerald-800 px-3 py-1.5 text-xs font-medium text-white hover:bg-black cursor-pointer"
                 >
                   Download
                 </button>
                 <button
                   onClick={() => setFile(null)}
-                  className="rounded-lg border px-3 py-1.5 text-xs font-medium hover:bg-gray-50"
+                  className="rounded-lg border px-3 py-1.5 text-xs font-medium hover:bg-gray-50 cursor-pointer"
                 >
                   Ganti Foto
                 </button>
               </div>
             </div>
 
-            <div className="p-3">
-              <div className="relative w-full overflow-auto rounded-xl bg-[linear-gradient(45deg,#f7fafc_25%,#f1f5f9_25%,#f1f5f9_50%,#f7fafc_50%,#f7fafc_75%,#f1f5f9_75%,#f1f5f9_100%)] [background-size:24px_24px]">
+            <div className={`p-3`}>
+              <div
+                className={`relative w-full overflow-hidden rounded-xl bg-[linear-gradient(45deg,#f7fafc_25%,#f1f5f9_25%,#f1f5f9_50%,#f7fafc_50%,#f7fafc_75%,#f1f5f9_75%,#f1f5f9_100%)] [background-size:24px_24px] ${
+                  loading ? "animate-bg-pan" : ""
+                }`}
+              >
+                {/* overlay loading di atas canvas */}
+                {loading && (
+                  <div className="absolute inset-0 grid place-items-center bg-white/60 backdrop-blur-[1px]">
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="h-5 w-5 rounded-full border-2 border-emerald-600 border-t-transparent animate-spin" />
+                      <p className="text-xs font-medium text-gray-700">
+                        Memproses filter…
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 <canvas
                   ref={canvasRef}
+                  aria-busy={loading}
                   className="mx-auto block h-auto max-h-[580px] w-full max-w-full"
                   style={{ objectFit: "contain" }}
                 />
@@ -273,7 +284,7 @@ export default function CampaignFilter() {
                     }
                   } catch {}
                 }}
-                className="rounded-xl border px-4 py-2 text-sm hover:bg-gray-50"
+                className="text-white cursor-pointer rounded-xl border px-4 py-2 text-sm bg-emerald-800 hover:bg-emerald-700 "
               >
                 Bagikan
               </button>
@@ -288,7 +299,7 @@ export default function CampaignFilter() {
           <div className="grid grid-cols-2 gap-2">
             <button
               onClick={download}
-              className="rounded-xl bg-gray-900 px-4 py-2 text-white"
+              className="rounded-xl bg-emerald-800 px-4 py-2 text-white"
             >
               Download
             </button>

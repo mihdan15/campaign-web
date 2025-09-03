@@ -47,6 +47,7 @@ export default function ControlsPanel(p: ControlsPanelProps) {
   // helper
   const defined = <T,>(v: T | undefined, d: T) => (v === undefined ? d : v);
   const [showAdvanced, setShowAdvanced] = React.useState(false);
+  const [activePreset, setActivePreset] = React.useState<string | null>(null);
 
   const grungeAmt = defined(p.grungeAmt, 0);
   const grungeScale = defined(p.grungeScale, 80);
@@ -112,89 +113,124 @@ export default function ControlsPanel(p: ControlsPanelProps) {
       setFoldDirection("diagonal");
       setFoldCount(1);
     }
+    setActivePreset(name);
   };
 
   return (
-    <aside className="rounded-2xl border bg-white p-4 shadow-sm space-y-5">
-      {/* mapping */}
+    <aside className="rounded-2xl border bg-white/80 backdrop-blur p-4 shadow-lg ring-1 ring-black/5 transition">
+      {/* arah warna */}
       <div className="space-y-2">
-        <div className="text-sm font-semibold text-gray-700">Mapping</div>
+        <div className="text-sm font-semibold text-gray-700">Inverse warna</div>
         <div className="flex rounded-xl border bg-gray-50 p-1">
           <button
-            className={`flex-1 rounded-lg px-3 py-2 text-xs font-medium transition ${
+            aria-pressed={!p.isReversed}
+            className={[
+              "flex-1 rounded-lg px-3 py-2 text-xs font-medium transition-all cursor-pointer",
               !p.isReversed
-                ? "bg-white shadow-sm ring-1 ring-black/5"
-                : "text-gray-600 hover:bg-white/60"
-            }`}
+                ? "bg-emerald-700 text-white shadow-sm hover:bg-emerald-700"
+                : "text-gray-700 hover:bg-white/70",
+              "hover:-translate-y-[1px] active:scale-[.98]",
+            ].join(" ")}
             onClick={() => p.setIsReversed(false)}
           >
-            Green→Shadows / Pink→Highlights
+            Hijau→Bayangan Pink→Sorotan
           </button>
           <button
-            className={`ml-1 flex-1 rounded-lg px-3 py-2 text-xs font-medium transition ${
+            aria-pressed={p.isReversed}
+            className={[
+              "ml-1 flex-1 rounded-lg px-3 py-2 text-xs font-medium transition-all cursor-pointer",
               p.isReversed
-                ? "bg-white shadow-sm ring-1 ring-black/5"
-                : "text-gray-600 hover:bg-white/60"
-            }`}
+                ? "bg-emerald-700 text-white shadow-sm hover:bg-emerald-700"
+                : "text-gray-700 hover:bg-white/70",
+              "hover:-translate-y-[1px] active:scale-[.98]",
+            ].join(" ")}
             onClick={() => p.setIsReversed(true)}
           >
-            Pink→Shadows / Green→Highlights
+            Pink→Bayangan Hijau→Sorotan
           </button>
         </div>
       </div>
 
-      {/* palette */}
-      <div className="space-y-2">
-        <div className="text-sm font-semibold text-gray-700">Palet Warna</div>
+      {/* gaya palet */}
+      <div className="mt-4 space-y-2">
+        <div className="text-sm font-semibold text-gray-700">Gaya palet</div>
         <div className="flex rounded-xl border bg-gray-50 p-1">
           <button
-            className={`flex-1 rounded-lg px-3 py-2 text-xs font-medium transition ${
+            aria-pressed={!p.useClassicColors}
+            className={[
+              "flex-1 rounded-lg px-3 py-2 text-xs font-medium transition-all cursor-pointer",
               !p.useClassicColors
-                ? "bg-white shadow-sm ring-1 ring-black/5"
-                : "text-gray-600 hover:bg-white/60"
-            }`}
+                ? "bg-emerald-700 text-white shadow-sm hover:bg-emerald-700"
+                : "text-gray-700 hover:bg-white/70",
+              "hover:-translate-y-[1px] active:scale-[.98]",
+            ].join(" ")}
             onClick={() => p.setUseClassicColors(false)}
           >
-            Optimized
+            Default
           </button>
           <button
-            className={`ml-1 flex-1 rounded-lg px-3 py-2 text-xs font-medium transition ${
+            aria-pressed={p.useClassicColors}
+            className={[
+              "ml-1 flex-1 rounded-lg px-3 py-2 text-xs font-medium transition-all cursor-pointer",
               p.useClassicColors
-                ? "bg-white shadow-sm ring-1 ring-black/5"
-                : "text-gray-600 hover:bg-white/60"
-            }`}
+                ? "bg-emerald-700 text-white shadow-sm hover:bg-emerald-700"
+                : "text-gray-700 hover:bg-white/70",
+              "hover:-translate-y-[1px] active:scale-[.98]",
+            ].join(" ")}
             onClick={() => p.setUseClassicColors(true)}
           >
-            Classic
+            Klasik
           </button>
         </div>
       </div>
 
-      {/* presets */}
-      <div>
-        <div className="mb-2 text-sm font-semibold text-gray-700">Presets</div>
+      {/* preset cepat */}
+      <div className="mt-5">
+        <div className="mb-2 text-sm font-semibold text-gray-700">
+          Preset cepat
+        </div>
         <div className="grid grid-cols-4 gap-2">
           <button
-            className="rounded-xl border px-3 py-2 text-xs font-medium hover:bg-gray-50"
             onClick={() => applyPreset("poster")}
+            className={[
+              "rounded-xl border px-3 py-2 text-xs font-medium transition cursor-pointer active:scale-[.98]",
+              activePreset === "poster"
+                ? "bg-emerald-700 text-white shadow-sm hover:bg-emerald-700"
+                : "hover:bg-gray-50",
+            ].join(" ")}
           >
             Poster
           </button>
           <button
-            className="rounded-xl border px-3 py-2 text-xs font-medium hover:bg-gray-50"
             onClick={() => applyPreset("lembut")}
+            className={[
+              "rounded-xl border px-3 py-2 text-xs font-medium transition cursor-pointer active:scale-[.98]",
+              activePreset === "lembut"
+                ? "bg-emerald-700 text-white shadow-sm hover:bg-emerald-700"
+                : "hover:bg-gray-50",
+            ].join(" ")}
           >
             Lembut
           </button>
           <button
-            className="rounded-xl border px-3 py-2 text-xs font-medium hover:bg-gray-50"
             onClick={() => applyPreset("dramatis")}
+            className={[
+              "rounded-xl border px-3 py-2 text-xs font-medium transition cursor-pointer active:scale-[.98]",
+              activePreset === "dramatis"
+                ? "bg-emerald-700 text-white shadow-sm hover:bg-emerald-700"
+                : "hover:bg-gray-50",
+            ].join(" ")}
           >
             Dramatis
           </button>
           <button
-            className="rounded-xl border px-3 py-2 text-xs font-medium hover:bg-gray-50"
             onClick={() => applyPreset("grungePoster")}
+            className={[
+              "rounded-xl border px-3 py-2 text-xs font-medium transition cursor-pointer active:scale-[.98]",
+              activePreset === "grungePoster"
+                ? "bg-emerald-700 text-white shadow-sm hover:bg-emerald-700"
+                : "hover:bg-gray-50",
+            ].join(" ")}
           >
             Grunge
           </button>
@@ -202,28 +238,52 @@ export default function ControlsPanel(p: ControlsPanelProps) {
       </div>
 
       {/* Toggle Advanced Settings */}
-      <div className="pt-2">
+      <div className="pt-3">
         <button
           type="button"
           onClick={() => setShowAdvanced((s) => !s)}
           aria-expanded={showAdvanced}
-          className="w-full rounded-xl border px-4 py-2 text-sm font-medium hover:bg-gray-50"
+          className="group w-full rounded-xl border px-4 py-2 text-sm font-medium hover:bg-gray-50 active:scale-[.99] transition cursor-pointer flex items-center justify-center gap-2"
         >
-          {showAdvanced
-            ? "Sembunyikan Pengaturan Lanjutan"
-            : "✨ Tampilkan Pengaturan Lanjutan"}
+          <span className="leading-none">
+            {showAdvanced
+              ? "Sembunyikan Pengaturan Lanjutan"
+              : "Tampilkan Pengaturan Lanjutan"}
+          </span>
+          <svg
+            className={`h-4 w-4 transition-transform duration-300 ${
+              showAdvanced ? "rotate-180" : ""
+            }`}
+            viewBox="0 0 24 24"
+            fill="none"
+          >
+            <path
+              d="M6 9l6 6 6-6"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+          </svg>
         </button>
         {!showAdvanced && (
           <p className="mt-1 text-xs text-gray-500">
-            Butuh kontrol halus? Buka untuk atur grain, vignette, glow, tekstur
-            grunge, dan lipatan kertas.
+            Butuh kontrol halus? Atur grain, vignette, glow, tekstur grunge, dan
+            lipatan kertas.
           </p>
         )}
       </div>
 
       <Divider />
 
-      {showAdvanced && (
+      {/* Advanced area dengan animasi expand/collapse */}
+      <div
+        className={[
+          "grid transition-all duration-300 ease-out",
+          showAdvanced
+            ? "opacity-100 max-h-[1400px] gap-0"
+            : "opacity-0 max-h-0 overflow-hidden",
+        ].join(" ")}
+      >
         <>
           <Divider />
           {/* existing effects */}
@@ -312,77 +372,99 @@ export default function ControlsPanel(p: ControlsPanelProps) {
             hint="Ukuran pola tekstur"
           />
 
-          {/* NEW: Paper Folds */}
+          {/* Lipatan kertas */}
           <div className="pt-2">
             <div className="mb-2 flex items-center justify-between">
               <span className="text-sm font-semibold text-gray-700">
-                Paper Fold
+                Lipatan kertas
               </span>
-              <label className="inline-flex items-center gap-2 text-xs">
-                <input
-                  type="checkbox"
-                  checked={foldsEnabled}
-                  onChange={(e) => setFoldsEnabled(e.target.checked)}
-                />{" "}
-                Aktif
-              </label>
+
+              {/* Toggle aktif (hijau saat ON) */}
+              <button
+                type="button"
+                onClick={() => setFoldsEnabled(!foldsEnabled)}
+                aria-pressed={foldsEnabled}
+                className={[
+                  "rounded-full px-3 py-1 text-xs font-medium transition cursor-pointer",
+                  foldsEnabled
+                    ? "bg-emerald-600 text-white hover:bg-emerald-700"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200",
+                ].join(" ")}
+                title={foldsEnabled ? "Matikan lipatan" : "Aktifkan lipatan"}
+              >
+                {foldsEnabled ? "Aktif" : "Nonaktif"}
+              </button>
             </div>
+
+            {/* Kekuatan lipatan */}
             <Slider
-              label="Fold Strength"
+              label="Kekuatan lipatan"
               value={foldStrength}
               min={0}
               max={100}
               unit="%"
               onChange={(v) => setFoldStrength(v)}
+              hint="Atur seberapa jelas highlight & shadow lipatan."
             />
-            <div className="mt-2 grid grid-cols-3 gap-2 text-xs">
-              <button
-                onClick={() => setFoldDirection("horizontal")}
-                className={`rounded border px-2 py-1 ${
-                  foldDirection === "horizontal"
-                    ? "bg-gray-900 text-white"
-                    : "hover:bg-gray-50"
-                }`}
-              >
-                Horizontal
-              </button>
-              <button
-                onClick={() => setFoldDirection("vertical")}
-                className={`rounded border px-2 py-1 ${
-                  foldDirection === "vertical"
-                    ? "bg-gray-900 text-white"
-                    : "hover:bg-gray-50"
-                }`}
-              >
-                Vertical
-              </button>
-              <button
-                onClick={() => setFoldDirection("diagonal")}
-                className={`rounded border px-2 py-1 ${
-                  foldDirection === "diagonal"
-                    ? "bg-gray-900 text-white"
-                    : "hover:bg-gray-50"
-                }`}
-              >
-                Diagonal
-              </button>
+
+            {/* Arah lipatan */}
+            <div className="mt-3">
+              <div className="mb-2 text-xs font-medium text-gray-600">
+                Arah lipatan
+              </div>
+              <div className="grid grid-cols-3 gap-2 text-xs">
+                <button
+                  onClick={() => setFoldDirection("horizontal")}
+                  className={[
+                    "rounded-lg border px-2 py-1 transition cursor-pointer",
+                    foldDirection === "horizontal"
+                      ? "bg-emerald-600 text-white hover:bg-emerald-700"
+                      : "hover:bg-gray-50",
+                  ].join(" ")}
+                >
+                  Horizontal
+                </button>
+                <button
+                  onClick={() => setFoldDirection("vertical")}
+                  className={[
+                    "rounded-lg border px-2 py-1 transition cursor-pointer",
+                    foldDirection === "vertical"
+                      ? "bg-emerald-600 text-white hover:bg-emerald-700"
+                      : "hover:bg-gray-50",
+                  ].join(" ")}
+                >
+                  Vertikal
+                </button>
+                <button
+                  onClick={() => setFoldDirection("diagonal")}
+                  className={[
+                    "rounded-lg border px-2 py-1 transition cursor-pointer",
+                    foldDirection === "diagonal"
+                      ? "bg-emerald-600 text-white hover:bg-emerald-700"
+                      : "hover:bg-gray-50",
+                  ].join(" ")}
+                >
+                  Diagonal
+                </button>
+              </div>
             </div>
-            <div className="mt-2 flex items-center gap-2 text-xs">
-              <span>Jumlah lipatan</span>
-              <input
-                type="range"
+
+            {/* Jumlah lipatan (pakai Slider juga) */}
+            <div className="mt-3">
+              <Slider
+                label="Jumlah lipatan"
+                value={foldCount}
                 min={1}
                 max={5}
-                value={foldCount}
-                onChange={(e) => setFoldCount(Number(e.target.value))}
+                step={1}
+                unit=""
+                onChange={(v) => setFoldCount(v)}
+                hint="1–5 lipatan; makin banyak, makin 'poster terlipat'."
               />
-              <span className="tabular-nums">{foldCount}</span>
             </div>
           </div>
         </>
-      )}
-
-
+      </div>
     </aside>
   );
 }
@@ -410,15 +492,21 @@ function Slider({
   onChange: (v: number) => void;
   hint?: string;
 }) {
+  // % progress untuk styling background track
+  const pct = ((value - min) * 100) / (max - min);
+
   return (
     <div>
+      {/* Label + badge nilai */}
       <div className="mb-1 flex items-center justify-between">
-        <span className="text-sm font-semibold text-gray-700">{label}</span>
-        <span className="rounded-md bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">
+        <span className="text-sm font-semibold text-gray-800">{label}</span>
+        <span className="rounded-lg bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">
           {value}
           {unit}
         </span>
       </div>
+
+      {/* Track gradient: Hijau → Pink, dengan progress sesuai nilai */}
       <input
         type="range"
         min={min}
@@ -426,9 +514,16 @@ function Slider({
         step={step}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="w-full accent-gray-900"
         title={hint}
+        className="w-full cursor-pointer appearance-none rounded-full accent-emerald-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
+        style={{
+          height: 8,
+          background: `linear-gradient(to right, #165027 0%, #165027 ${pct}%, #e5e7eb ${pct}%, #e5e7eb 100%)`,
+          borderRadius: 9999,
+        }}
       />
+
+      {/* Hint kecil */}
       {hint && <div className="mt-1 text-xs text-gray-500">{hint}</div>}
     </div>
   );
